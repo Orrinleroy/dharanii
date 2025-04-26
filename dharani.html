@@ -3,10 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dharaniiii ♥</title>
+    <title>Bouncing Text Animation</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000000;
+            font-family: Arial, sans-serif;
+        }
+        
+        #container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #clickButton {
+            padding: 20px 40px;
+            font-size: 24px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        #clickButton:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        #animationContainer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            background-color: #000;
+            overflow: hidden;
+        }
+        
+        #bouncingText {
+            position: absolute;
+            font-family: "Arial Black", Gadget, sans-serif;
+            font-weight: bold;
+            font-size: 32px;
+            color: #ffffff;
+            padding: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            user-select: none;
+            white-space: nowrap;
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            background-size: 600% 600%;
+            animation: rainbowEffect 6s linear infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
+        @keyframes rainbowEffect {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        
+        @media (max-width: 768px) {
+            #clickButton {
+                padding: 15px 30px;
+                font-size: 20px;
+            }
+            
+            #bouncingText {
+                font-size: 24px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #bouncingText {
+                font-size: 18px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="container" class="container-fluid p-0">
@@ -16,7 +101,113 @@
         </div>
     </div>
 
+    <script>
+        let animationFrameId;
+        let textElement;
+        let containerElement;
+        let x, y, speedX, speedY;
+        let colorIndex = 0;
+        const colors = [
+            '#ff0000', // red
+            '#ff7f00', // orange
+            '#ffff00', // yellow
+            '#00ff00', // green
+            '#0000ff', // blue
+            '#4b0082', // indigo
+            '#9400d3'  // violet
+        ];
+        
+        document.getElementById('clickButton').addEventListener('click', function() {
+            this.style.display = 'none';
+            document.getElementById('animationContainer').style.display = 'block';
+            startAnimation();
+        });
+        
+        function startAnimation() {
+            textElement = document.getElementById('bouncingText');
+            containerElement = document.getElementById('animationContainer');
+            
+            // Initial position
+            x = Math.random() * (containerElement.offsetWidth - textElement.offsetWidth);
+            y = Math.random() * (containerElement.offsetHeight - textElement.offsetHeight);
+            
+            // Initial speed (pixels per frame)
+            speedX = 3;
+            speedY = 2.5;
+            
+            // Set initial position
+            updatePosition();
+            
+            // Start animation loop
+            animationFrameId = requestAnimationFrame(animate);
+        }
+        
+        function updatePosition() {
+            textElement.style.left = x + 'px';
+            textElement.style.top = y + 'px';
+        }
+        
+        function animate() {
+            // Update position
+            x += speedX;
+            y += speedY;
+            
+            // Check for collision with walls
+            const rightBound = containerElement.offsetWidth - textElement.offsetWidth;
+            const bottomBound = containerElement.offsetHeight - textElement.offsetHeight;
+            
+            // Right/left walls
+            if (x > rightBound) {
+                x = rightBound;
+                speedX = -speedX;
+                changeColor();
+            } else if (x < 0) {
+                x = 0;
+                speedX = -speedX;
+                changeColor();
+            }
+            
+            // Top/bottom walls
+            if (y > bottomBound) {
+                y = bottomBound;
+                speedY = -speedY;
+                changeColor();
+            } else if (y < 0) {
+                y = 0;
+                speedY = -speedY;
+                changeColor();
+            }
+            
+            // Update element position
+            updatePosition();
+            
+            // Continue animation
+            animationFrameId = requestAnimationFrame(animate);
+        }
+        
+        function changeColor() {
+            // Text already has rainbow gradient effect from CSS
+            // But we can add a subtle effect on collision like changing opacity
+            textElement.style.opacity = 0.7;
+            setTimeout(() => {
+                textElement.style.opacity = 1;
+            }, 100);
+        }
+        
+        // Ensure animation resizes properly with window
+        window.addEventListener('resize', function() {
+            if (textElement && containerElement) {
+                // Keep text within bounds after resize
+                const rightBound = containerElement.offsetWidth - textElement.offsetWidth;
+                const bottomBound = containerElement.offsetHeight - textElement.offsetHeight;
+                
+                x = Math.min(x, rightBound);
+                y = Math.min(y, bottomBound);
+                
+                updatePosition();
+            }
+        });
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="animation.js"></script>
 </body>
 </html>
